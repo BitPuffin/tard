@@ -2,8 +2,10 @@ package com.thelonelybyte.tard;
 
 import java.util.Random;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.Logger;
 
 public class DungeonGenerator {
 	private Random rand;
@@ -23,17 +25,20 @@ public class DungeonGenerator {
 	}
 	
 	public Dungeon genDungeon(BlockType w, BlockType g) {
+		Gdx.app.log("dungeon generator", "Generating dungeon, wall type is " + w.getType() + " and ground type is " + g.getType());
 		walltype = w;
 		groundtype = g;
 		
 		Dungeon d;
 		
 		int roomcount = rand.nextInt(rand.nextInt(100)+1)+1;
+		Gdx.app.log("dungeon generator", "Room count: " + roomcount);
 		
 		Array<Array<Array<Block>>> rooms = new Array<Array<Array<Block>>>(roomcount);
 		
 		for(int i = 0; i < rooms.size; i++) {
 			rooms.insert(i, genRoom());
+			Gdx.app.log("dungeon generator", "room inserted at index " + i);
 		}
 		
 		
@@ -42,19 +47,26 @@ public class DungeonGenerator {
 	}
 	
 	private Array<Array<Block>> genRoom() {
+		Gdx.app.log("dungeon generator", "Generating room...");
+		
 		int doors = rand.nextInt(5) + 1;
+		Gdx.app.log("dungeon generator", "Door count for this room: " + doors);
+		
 		int width = rand.nextInt(60);
 		if (width < 6) {
 			width = 6;
 		}
+		Gdx.app.log("dungeon generator", "Room width: " + width);
 		
 		int height = rand.nextInt(60);
 		if (height < 6) {
 			height = 6;
 		}
+		Gdx.app.log("dungeon generator", "Room height: " + height);
 		
 		Array<Array<Block>> room = new Array<Array<Block>>();
 		
+		Gdx.app.log("dungeon generator", "Generating the room without doors");
 		// Closed room!
 		for(int x = 0; x < width; x++) {
 			room.insert(x, new Array<Block>());
@@ -66,7 +78,9 @@ public class DungeonGenerator {
 				}
 			}
 		}
+		Gdx.app.log("dungeon generator", "Done generating closed room!");
 		
+		Gdx.app.log("dungeon generator", "Adding doors...");
 		int doorsadded = 0;
 		
 		final int mindoorchance = 10;
@@ -109,14 +123,18 @@ public class DungeonGenerator {
 				}
 			}
 		}
+		Gdx.app.log("dungeon generator", "Finished generating doors, thus done with generating room.");
 		
 		return room;
 	}
 	
 	// Just generate a straight corridor
 	private Array<Array<Block>> genCorridor(int direction) {
+		Gdx.app.log("dungeon generator", "Generating a " + (direction == up || direction == down ? "vertical" : "horizontal") + "corridor...");
 		int len = rand.nextInt(16);
 		if (len < 2) { len = 2; }
+		Gdx.app.log("dungeon generator", "The legth of the corridor is: " + len);
+		
 		Array<Array<Block>> corridor = new Array<Array<Block>>(len);
 		
 		if (direction == up || direction == down) {
@@ -146,10 +164,13 @@ public class DungeonGenerator {
 			}
 		}
 		
+		Gdx.app.log("dungeon generator", "Done generating corridor!");
+		
 		return corridor;
 	}
 	
 	private Array<Array<Block>> connectRooms(Array<Array<Array<Block>>> rooms) {
+		Gdx.app.log("dungeon generator", "Time to connect the rooms...");
 		
 		boolean[][][] hasBeenConnected = new boolean[rooms.size][][];
 		for(int i=0; i < hasBeenConnected.length; i++) {
@@ -171,6 +192,8 @@ public class DungeonGenerator {
 	}
 	
 	private Array<Integer[]> findOpenings(Array<Array<Block>> room) {
+		Gdx.app.log("dungeon generator", "Finding the openings of this room...");
+		
 		Array<Integer[]> coordinates = new Array<Integer[]>();
 		int coordindex = -1;
 		
@@ -213,12 +236,15 @@ public class DungeonGenerator {
 			}
 		}
 		
+		Gdx.app.log("dungeon generator", "Done searching for openings/doors");
+		
 		return coordinates;
 	}
 	
 	
 	private boolean tryInsert(Block current, BlockType target, int inserted, int max, int min, int high) {
 		if((rand.nextInt(high) < min) && (inserted <= max) && (!current.getType().equals(target))) {
+			Gdx.app.log("dungeon generator", "Inserting door!");
 			current = new Block(target);
 			return true;
 		} else {
