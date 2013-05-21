@@ -14,25 +14,55 @@ public class Tard implements ApplicationListener {
 	private OrthographicCamera camera;
 	private SpriteBatch batch;
 	private Texture texture;
-	private Sprite sprite;
+	//private Sprite sprite;
+	
+	private BlockType ground;
+	private BlockType wall;
+	private BlockType stairsup;
+	private BlockType stairsdown;
+	
+	private DungeonManager dm;
+	
+	private int currentLevel = 0;
 	
 	@Override
 	public void create() {		
 		float w = Gdx.graphics.getWidth();
 		float h = Gdx.graphics.getHeight();
 		
+		dm = new DungeonManager();
+		
+		Texture groundTexture = new Texture(Gdx.files.internal("data/ground.png"));
+		Texture wallTexture = new Texture(Gdx.files.internal("data/wall.png"));
+		Texture stairsUpTexture = new Texture(Gdx.files.internal("data/ugly_stairs_up"));
+		Texture stairsDownTexture = new Texture(Gdx.files.internal("data/stairs.png"));
+		groundTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
+		wallTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
+		stairsUpTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
+		stairsDownTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
+		
+		Sprite groundSprite = new Sprite(groundTexture);
+		Sprite wallSprite = new Sprite(wallTexture);
+		Sprite stairsDownSprite = new Sprite(stairsDownTexture);
+		Sprite stairsUpSprite = new Sprite(stairsUpTexture);
+		
+		ground = new BlockType("ground", groundSprite);
+		wall = new BlockType("wall", wallSprite);
+		stairsup = new BlockType("stairsup", stairsUpSprite);
+		stairsdown = new BlockType("stairsdown", stairsDownSprite);
+		
 		camera = new OrthographicCamera(1, h/w);
 		batch = new SpriteBatch();
 		
-		texture = new Texture(Gdx.files.internal("data/libgdx.png"));
-		texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
+		//texture = new Texture(Gdx.files.internal("data/libgdx.png"));
+		//texture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 		
-		TextureRegion region = new TextureRegion(texture, 0, 0, 512, 275);
+		//TextureRegion region = new TextureRegion(texture, 0, 0, 512, 275);
 		
-		sprite = new Sprite(region);
-		sprite.setSize(0.9f, 0.9f * sprite.getHeight() / sprite.getWidth());
-		sprite.setOrigin(sprite.getWidth()/2, sprite.getHeight()/2);
-		sprite.setPosition(-sprite.getWidth()/2, -sprite.getHeight()/2);
+		//sprite = new Sprite(region);
+		//sprite.setSize(0.9f, 0.9f * sprite.getHeight() / sprite.getWidth());
+		//sprite.setOrigin(sprite.getWidth()/2, sprite.getHeight()/2);
+		//sprite.setPosition(-sprite.getWidth()/2, -sprite.getHeight()/2);
 	}
 
 	@Override
@@ -48,7 +78,7 @@ public class Tard implements ApplicationListener {
 		
 		batch.setProjectionMatrix(camera.combined);
 		batch.begin();
-		sprite.draw(batch);
+		//sprite.draw(batch);
 		batch.end();
 	}
 
