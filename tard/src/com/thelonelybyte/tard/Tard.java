@@ -109,11 +109,12 @@ public class Tard extends Game implements ApplicationListener {
 		Gdx.gl.glClearColor(0.15f, 0.1f, 0.1f, 1);
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
 		
-		batch.setProjectionMatrix(camera.projection);
+		batch.setProjectionMatrix(camera.combined);
 		batch.begin();
 		for (int x = 0; x < todraw.getWidth(); x++) {
 			for (int y = 0; y < todraw.getHeight(); y++) {
 				Sprite s = todraw.getBlockAt(x, y).getType().getSprite();
+				//s.setSize(0.1f, 0.1f);
 				s.setPosition(x*Block.size, y*Block.size);
 				s.draw(batch);
 			}
