@@ -1,5 +1,7 @@
 package com.thelonelybyte.tard;
 
+import java.util.Random;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.Array;
 
@@ -27,8 +29,13 @@ public class Room {
 		return roomblocks.get(0).size;
 	}
 	
-	public Block getBlockTypeAt(int x, int y) {
+	public Block getBlockAt(int x, int y) {
 		return roomblocks.get(x).get(y);
+	}
+	
+	public Block getRandomBlock() {
+		Random r = new Random();
+		return roomblocks.get(r.nextInt(getWidth())).get(r.nextInt(getHeight()));
 	}
 	
 	public int getNextRoomIndex(int playerdirection) {
