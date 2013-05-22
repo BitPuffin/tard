@@ -3,6 +3,7 @@ package com.thelonelybyte.tard;
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.GL10;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
@@ -10,6 +11,7 @@ import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Vector3;
 
 public class Tard extends Game implements ApplicationListener {
 	private OrthographicCamera camera;
@@ -33,7 +35,8 @@ public class Tard extends Game implements ApplicationListener {
 	
 	private int currentLevel = 0;
 	
-
+	// Test dungeon
+	Dungeon d;
 	
 	@Override
 	public void create() {		
@@ -57,14 +60,18 @@ public class Tard extends Game implements ApplicationListener {
 		Sprite wallSprite = new Sprite(wallTexture);
 		Sprite stairsDownSprite = new Sprite(stairsDownTexture);
 		Sprite stairsUpSprite = new Sprite(stairsUpTexture);
+		groundSprite.setOrigin(groundSprite.getWidth()/2, groundSprite.getHeight()/2);
+		wallSprite.setOrigin(groundSprite.getWidth()/2, groundSprite.getHeight()/2);
+		//.setOrigin(groundSprite.getWidth()/2, groundSprite.getHeight()/2);
+		//groundSprite.setOrigin(groundSprite.getWidth()/2, groundSprite.getHeight()/2);
 		
-		ground = new BlockType("ground", groundSprite);
-		wall = new BlockType("wall", wallSprite);
-		stairsup = new BlockType("stairsup", stairsUpSprite);
-		stairsdown = new BlockType("stairsdown", stairsDownSprite);
+		ground = new BlockType("ground", groundTexture, groundSprite);
+		wall = new BlockType("wall", wallTexture, wallSprite);
+		stairsup = new BlockType("stairsup", stairsUpTexture, stairsUpSprite);
+		stairsdown = new BlockType("stairsdown", stairsDownTexture, stairsDownSprite);
 		
 		Gdx.app.log("init", "Generating dungeon!");
-		Dungeon d = generator.genDungeon(wall, ground);
+		d = generator.genDungeon(wall, ground);
 		
 		camera = new OrthographicCamera(1, h/w);
 		batch = new SpriteBatch();
@@ -93,7 +100,8 @@ public class Tard extends Game implements ApplicationListener {
 		texture.dispose();
 		
 	}
-
+	
+	Room todraw = null;
 	@Override
 	public void render() {
 		update(Gdx.graphics.getDeltaTime());
@@ -101,14 +109,57 @@ public class Tard extends Game implements ApplicationListener {
 		Gdx.gl.glClearColor(0.15f, 0.1f, 0.1f, 1);
 		Gdx.gl.glClear(GL10.GL_COLOR_BUFFER_BIT);
 		
-		batch.setProjectionMatrix(camera.combined);
+		batch.setProjectionMatrix(camera.projection);
 		batch.begin();
-		//sprite.draw(batch);
+		for (int x = 0; x < todraw.getWidth(); x++) {
+			for (int y = 0; y < todraw.getHeight(); y++) {
+				Sprite s = todraw.getBlockAt(x, y).getType().getSprite();
+				s.setPosition(x*Block.size, y*Block.size);
+				s.draw(batch);
+			}
+		}
 		batch.end();
 	}
 	
+	int relativex = 0;
+	int relativey = 0;
 	public void update(float delta) {
+		if (todraw == null) {
+			todraw = d.getRandomRoom();
+		}
+		// select room to draw with directional keys
+		// If the room doesn't have an entrance to the room you pressed it won't switch room
+		if(Gdx.input.isKeyPressed(Input.Keys.UP)) {
+			int index = todraw.getNextRoomIndex(DungeonGenerator.up); 
+			if ( index != -1) {
+				todraw = d.getRoom(index);
+			}
+		}
+		else if(Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
+			int index = todraw.getNextRoomIndex(DungeonGenerator.right); 
+			if ( index != -1) {
+				todraw = d.getRoom(index);
+			}
+		}
+		else if(Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
+			int index = todraw.getNextRoomIndex(DungeonGenerator.down); 
+			if ( index != -1) {
+				todraw = d.getRoom(index);
+			}
+		}
+		else if(Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
+			int index = todraw.getNextRoomIndex(DungeonGenerator.left); 
+			if ( index != -1) {
+				todraw = d.getRoom(index);
+			}
+		}
 		
+		// Move the camera around with mouse and holding down left control
+		if (Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT)){
+			camera.translate(Gdx.input.getDeltaX(), Gdx.input.getDeltaY());
+			camera.update();
+		}
+		Gdx.app.log("Camera", "Position x: " + camera.position.x + " Position y: " + camera.position.y);
 	}
 
 	@Override
