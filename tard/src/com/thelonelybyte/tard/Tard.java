@@ -114,6 +114,7 @@ public class Tard extends Game implements ApplicationListener {
 		for (int x = 0; x < todraw.getWidth(); x++) {
 			for (int y = 0; y < todraw.getHeight(); y++) {
 				Sprite s = todraw.getBlockAt(x, y).getType().getSprite();
+				
 				//s.setSize(0.1f, 0.1f);
 				s.setPosition(x*Block.size, y*Block.size);
 				s.draw(batch);
@@ -157,7 +158,7 @@ public class Tard extends Game implements ApplicationListener {
 		
 		// Move the camera around with mouse and holding down left control
 		if (Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT)){
-			camera.translate(Gdx.input.getDeltaX(), Gdx.input.getDeltaY());
+			camera.translate(-0.1f*Gdx.input.getDeltaX(), 0.1f*Gdx.input.getDeltaY());
 			camera.update();
 		}
 		Gdx.app.log("Camera", "Position x: " + camera.position.x + " Position y: " + camera.position.y);
