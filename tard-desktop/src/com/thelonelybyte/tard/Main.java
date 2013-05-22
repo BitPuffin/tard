@@ -8,8 +8,8 @@ public class Main {
 		LwjglApplicationConfiguration cfg = new LwjglApplicationConfiguration();
 		cfg.title = "tard";
 		cfg.useGL20 = false;
-		cfg.width = 480;
-		cfg.height = 320;
+		cfg.width = Block.size * 12;
+		cfg.height = Block.size * 10;
 		
 		new LwjglApplication(new Tard(), cfg);
 	}

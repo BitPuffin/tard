@@ -12,10 +12,10 @@ import com.badlogic.gdx.utils.Logger;
 public class DungeonGenerator {
 	private Random rand;
 	
-	private static final int up = 0;
-	private static final int right = 1;
-	private static final int down = 2;
-	private static final int left = 3;
+	public static final int up = 0;
+	public static final int right = 1;
+	public static final int down = 2;
+	public static final int left = 3;
 	
 	private BlockType walltype;
 	private BlockType groundtype;

@@ -1,5 +1,7 @@
 package com.thelonelybyte.tard;
 
+import java.util.Random;
+
 import com.badlogic.gdx.utils.Array;
 
 public class Dungeon {
@@ -10,5 +12,17 @@ public class Dungeon {
 		this.rooms = rooms;
 	}
 	
+	public Room getRoom(int index) {
+		return rooms.get(index);
+	}
+	
+	public int roomCount() {
+		return rooms.size;
+	}
+	
+	public Room getRandomRoom() {
+		Random r = new Random();
+		return rooms.get(r.nextInt(rooms.size));
+	}
 	
 }
