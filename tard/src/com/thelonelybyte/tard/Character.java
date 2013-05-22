@@ -1,5 +1,7 @@
 package com.thelonelybyte.tard;
 
+// @Author: Isak Andersson
+
 public class Character {
 	CharacterAttributes attributes;
 	private int[] position;

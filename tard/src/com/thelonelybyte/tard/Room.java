@@ -5,6 +5,8 @@ import java.util.Random;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.Array;
 
+// @Author: Isak Andersson
+
 public class Room {
 	private Array<Array<Block>> roomblocks;
 	private int[] connectedto;

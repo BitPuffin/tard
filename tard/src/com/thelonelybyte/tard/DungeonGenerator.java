@@ -9,6 +9,8 @@ import com.badlogic.gdx.utils.ArrayMap;
 import com.badlogic.gdx.utils.IntIntMap;
 import com.badlogic.gdx.utils.Logger;
 
+// @Author: Isak Andersson
+
 public class DungeonGenerator {
 	private Random rand;
 	

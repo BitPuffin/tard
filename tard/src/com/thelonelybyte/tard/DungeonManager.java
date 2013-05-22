@@ -2,6 +2,8 @@ package com.thelonelybyte.tard;
 
 import com.badlogic.gdx.utils.Array;
 
+// @Author: Isak Andersson
+
 public class DungeonManager {
 	private Array<Dungeon> dungeons;
 	

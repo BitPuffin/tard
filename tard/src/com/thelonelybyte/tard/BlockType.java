@@ -2,6 +2,8 @@ package com.thelonelybyte.tard;
 
 import com.badlogic.gdx.graphics.g2d.Sprite;
 
+// @Author: Isak Andersson
+
 public class BlockType {
 	private String type;
 	private Sprite sprite;

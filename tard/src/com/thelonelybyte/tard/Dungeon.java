@@ -2,6 +2,8 @@ package com.thelonelybyte.tard;
 
 import java.util.Random;
 
+// @Author: Isak Andersson
+
 import com.badlogic.gdx.utils.Array;
 
 public class Dungeon {
