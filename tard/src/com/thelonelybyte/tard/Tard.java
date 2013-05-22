@@ -159,7 +159,7 @@ public class Tard extends Game implements ApplicationListener {
 		
 		// Move the camera around with mouse and holding down left control
 		if (Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT)){
-			camera.translate(5*Gdx.input.getDeltaX(), 5*-Gdx.input.getDeltaY());
+			camera.translate(10*Gdx.input.getDeltaX(), 10*-Gdx.input.getDeltaY());
 			camera.update();
 		}
 		Gdx.app.log("Camera", "Position x: " + camera.position.x + " Position y: " + camera.position.y);
