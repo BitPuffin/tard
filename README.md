@@ -13,3 +13,4 @@ Status
 
 
 How to use currently, hold down ctrl and move mouse to move the camera
+Press space to view a different random room in the dungeon!

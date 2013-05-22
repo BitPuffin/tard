@@ -126,6 +126,7 @@ public class Tard extends Game implements ApplicationListener {
 	
 	int relativex = 0;
 	int relativey = 0;
+	boolean space = false;
 	public void update(float delta) {
 		if (todraw == null) {
 			todraw = d.getRandomRoom();
@@ -155,6 +156,14 @@ public class Tard extends Game implements ApplicationListener {
 			if ( index != -1) {
 				todraw = d.getRoom(index);
 			}
+		}
+		
+		if(Gdx.input.isKeyPressed(Input.Keys.SPACE) && space) {
+			todraw = d.getRandomRoom();
+			space = false;
+		}
+		else if(!Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
+			space = true;
 		}
 		
 		// Move the camera around with mouse and holding down left control
