@@ -25,17 +25,26 @@ public class Tard implements ApplicationListener {
 	
 	private int currentLevel = 0;
 	
+	Texture groundTexture;
+	Texture wallTexture;
+	Texture stairsUpTexture;
+	Texture stairsDownTexture;
+	
+	DungeonGenerator generator;
+	
 	@Override
 	public void create() {		
 		float w = Gdx.graphics.getWidth();
 		float h = Gdx.graphics.getHeight();
 		
 		dm = new DungeonManager();
+		generator = new DungeonGenerator();
 		
-		Texture groundTexture = new Texture(Gdx.files.internal("data/ground.png"));
-		Texture wallTexture = new Texture(Gdx.files.internal("data/wall.png"));
-		Texture stairsUpTexture = new Texture(Gdx.files.internal("data/ugly_stairs_up"));
-		Texture stairsDownTexture = new Texture(Gdx.files.internal("data/stairs.png"));
+		Gdx.app.log("init", "Loading textures!");
+		groundTexture = new Texture(Gdx.files.internal("data/ground.png"));
+		wallTexture = new Texture(Gdx.files.internal("data/wall.png"));
+		stairsUpTexture = new Texture(Gdx.files.internal("data/ugly_up_stairs.png"));
+		stairsDownTexture = new Texture(Gdx.files.internal("data/stairs.png"));
 		groundTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 		wallTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
 		stairsUpTexture.setFilter(TextureFilter.Linear, TextureFilter.Linear);
@@ -50,6 +59,9 @@ public class Tard implements ApplicationListener {
 		wall = new BlockType("wall", wallSprite);
 		stairsup = new BlockType("stairsup", stairsUpSprite);
 		stairsdown = new BlockType("stairsdown", stairsDownSprite);
+		
+		Gdx.app.log("init", "Generating dungeon!");
+		Dungeon d = generator.genDungeon(wall, ground);
 		
 		camera = new OrthographicCamera(1, h/w);
 		batch = new SpriteBatch();
@@ -67,8 +79,13 @@ public class Tard implements ApplicationListener {
 
 	@Override
 	public void dispose() {
+		groundTexture.dispose();
+		wallTexture.dispose();
+		stairsUpTexture.dispose();
+		stairsDownTexture.dispose();
 		batch.dispose();
 		texture.dispose();
+		
 	}
 
 	@Override

@@ -6,6 +6,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ArrayMap;
+import com.badlogic.gdx.utils.IntIntMap;
 import com.badlogic.gdx.utils.Logger;
 
 public class DungeonGenerator {
@@ -35,9 +36,9 @@ public class DungeonGenerator {
 		int roomcount = rand.nextInt(rand.nextInt(100)+1)+1;
 		Gdx.app.log("dungeon generator", "Room count: " + roomcount);
 		
-		Array<Array<Array<Block>>> rooms = new Array<Array<Array<Block>>>(roomcount);
+		Array<Array<Array<Block>>> rooms = new Array<Array<Array<Block>>>();
 		
-		for(int i = 0; i < rooms.size; i++) {
+		for(int i = 0; i < roomcount; i++) {
 			rooms.insert(i, genRoom());
 			Gdx.app.log("dungeon generator", "room inserted at index " + i);
 		}
@@ -94,6 +95,7 @@ public class DungeonGenerator {
 		while (doorsadded < doors) {
 			// loop around the walls of the room and randomly instert openings
 			// skip at 0 and max
+			Gdx.app.log("dungeon generator", "x row at y = 0");
 			for (int x = 1; x < width-1; x++) {
 				if(tryInsert(room.get(x).get(0), groundtype, doorsadded, doors, mindoorchance, doorhigh)) {
 					doorsadded++;
@@ -102,6 +104,8 @@ public class DungeonGenerator {
 					}
 				}
 			}
+			
+			Gdx.app.log("dungeon generator", "x row at y = height-1");
 			for (int x = 1; x < width-1; x++) {
 				if(tryInsert(room.get(x).get(height-1), groundtype, doorsadded, doors, mindoorchance, doorhigh)) {
 					doorsadded++;
@@ -110,6 +114,7 @@ public class DungeonGenerator {
 					}
 				}
 			}
+			Gdx.app.log("dungeon generator", "y to height -1 row at x = 0");
 			for (int y = 1; y < height-1; y++) {
 				if(tryInsert(room.get(0).get(y), groundtype, doorsadded, doors, mindoorchance, doorhigh)) {
 					doorsadded++;
@@ -118,8 +123,10 @@ public class DungeonGenerator {
 					}
 				}
 			}
+			
+			Gdx.app.log("dungeon generator", "y to height -1 row at x = width-1");
 			for (int y = 1; y < height-1; y++) {
-				if(tryInsert(room.get(height-1).get(y), groundtype, doorsadded, doors, mindoorchance, doorhigh)) {
+				if(tryInsert(room.get(width-1).get(y), groundtype, doorsadded, doors, mindoorchance, doorhigh)) {
 					doorsadded++;
 					if (doorsadded == doors) {
 						break;
@@ -133,6 +140,7 @@ public class DungeonGenerator {
 	}
 	
 	// Just generate a straight corridor
+	// Not actually used though hohohohohohohohohohohohoh
 	private Array<Array<Block>> genCorridor(int direction) {
 		Gdx.app.log("dungeon generator", "Generating a " + (direction == up || direction == down ? "vertical" : "horizontal") + "corridor...");
 		int len = rand.nextInt(16);
@@ -174,7 +182,7 @@ public class DungeonGenerator {
 	}
 	
 	private Array<Room> connectRooms(Array<Array<Array<Block>>> rooms) {
-		Gdx.app.log("dungeon generator", "Time to connect the rooms...");
+		Gdx.app.log("dungeon generator", "Time to connect the "+ rooms.size +" rooms...");
 		
 		boolean[][][] hasBeenConnected = new boolean[rooms.size][][];
 		for(int i=0; i < hasBeenConnected.length; i++) {
@@ -299,15 +307,15 @@ public class DungeonGenerator {
 //		}
 		
 		Array<Array<Array<Block>>> finalrooms = new Array<Array<Array<Block>>>();
-		ArrayMap<Integer, Integer> indexconv = new ArrayMap<Integer, Integer>();
-		ArrayMap<Integer, Integer> roomindexconv = new ArrayMap<Integer, Integer>();
+		IntIntMap newindextoold = new IntIntMap();
+		IntIntMap oldindextonew = new IntIntMap();
 		
-		for(int roomindex = 0; roomindex < rooms.size; roomindex++) {
-			int newindex = 0;
+		int newindex = 0;
+		for(int roomindex = 0; roomindex < rooms.size; roomindex++) {	
 			if(!isConnected(connectedside[roomindex]) && !finalrooms.contains(rooms.get(roomindex), false)) {
 				finalrooms.insert(newindex, rooms.get(roomindex));
-				roomindexconv.insert(newindex, roomindex, newindex);
-				indexconv.insert(newindex, newindex, roomindex);
+				oldindextonew.put(roomindex, newindex);
+				newindextoold.put(newindex, roomindex);
 				
 				newindex++;
 			}
@@ -324,22 +332,24 @@ public class DungeonGenerator {
 		Array<Room> returnme = new Array<Room>();
 		// Helt efterblivet men orkar inte nu
 		for(int roomindex = 0; roomindex < finalrooms.size; roomindex++) {
-			int[] c = new int[4];
-			c[up] = roomindexconv.get(connectedto[indexconv.get(roomindex)][up]);
-			c[right] = roomindexconv.get(connectedto[indexconv.get(roomindex)][right]);
-			c[down] = roomindexconv.get(connectedto[indexconv.get(roomindex)][down]);
-			c[left] = roomindexconv.get(connectedto[indexconv.get(roomindex)][left]);
+			int[] c 	= new int[4];
+			c[up] 		= oldindextonew.get(connectedto[newindextoold.get(roomindex, -1)][up]	, -1);
+			c[right] 	= oldindextonew.get(connectedto[newindextoold.get(roomindex, -1)][right], -1);
+			c[down] 	= oldindextonew.get(connectedto[newindextoold.get(roomindex, -1)][down]	, -1);
+			c[left] 	= oldindextonew.get(connectedto[newindextoold.get(roomindex, -1)][left]	, -1);
 			
-			Room room = new Room(finalrooms.get(roomindex), c);
+			Room room 	= new Room(finalrooms.get(roomindex), c);
 			returnme.insert(roomindex, room);
 		}
+		
+		Gdx.app.log("dungeon generator", "Done connecting rooms");
 		
 		return returnme;
 		
 	}
 	
 	private boolean isConnected(boolean[] sideconnected) {
-		return sideconnected[up] && sideconnected[right] && sideconnected[down] && sideconnected[left];
+		return sideconnected[up] || sideconnected[right] || sideconnected[down] || sideconnected[left];
 	}
 	
 	private Array<Integer[]> findOpenings(Array<Array<Block>> room) {
