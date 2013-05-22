@@ -4,10 +4,10 @@ import com.badlogic.gdx.utils.Array;
 
 public class Dungeon {
 	// Structure, first array = x, second array = y
-	private Array<Array<Block>> blocks;
+	private Array<Room> rooms;
 	
-	public Dungeon(Array<Array<Block>> blocks) {
-		this.blocks = blocks;
+	public Dungeon(Array<Room> rooms) {
+		this.rooms = rooms;
 	}
 	
 	

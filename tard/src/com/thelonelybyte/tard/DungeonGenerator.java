@@ -5,6 +5,7 @@ import java.util.Random;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.ArrayMap;
 import com.badlogic.gdx.utils.Logger;
 
 public class DungeonGenerator {
@@ -40,6 +41,9 @@ public class DungeonGenerator {
 			rooms.insert(i, genRoom());
 			Gdx.app.log("dungeon generator", "room inserted at index " + i);
 		}
+		
+		d = new Dungeon(connectRooms(rooms));
+		rooms = null; // Yes hi I would like to be garbage collected asap
 		
 		
 		// assign something
@@ -169,7 +173,7 @@ public class DungeonGenerator {
 		return corridor;
 	}
 	
-	private Array<Array<Block>> connectRooms(Array<Array<Array<Block>>> rooms) {
+	private Array<Room> connectRooms(Array<Array<Array<Block>>> rooms) {
 		Gdx.app.log("dungeon generator", "Time to connect the rooms...");
 		
 		boolean[][][] hasBeenConnected = new boolean[rooms.size][][];
@@ -184,11 +188,158 @@ public class DungeonGenerator {
 			}
 		}
 		
-		for(int i=0; i < rooms.size; i++) {
-			Array<Integer[]> openings = findOpenings(rooms.get(i));
-			//for()
+		boolean connectedside[][] = new boolean[rooms.size][4];
+		for(int i = 0; i < connectedside.length; i++) {
+			connectedside[i][up] 	= false;
+			connectedside[i][right] = false;
+			connectedside[i][down] 	= false;
+			connectedside[i][left] 	= false;
 		}
 		
+		int connectedto[][] = new int[rooms.size][4]; // connectedto[roomisconnectedto][other4roomsides]
+		for (int i = 0; i < connectedto.length; i++) {
+			connectedto[i][up] 		= -1;
+			connectedto[i][right] 	= -1;
+			connectedto[i][down] 	= -1;
+			connectedto[i][left] 	= -1;
+		}
+
+		// This is gonna get messy
+		// And innefficient!
+		// It loops through all openings of the rooms and tries to connect it to 4 other rooms
+		for(int room1=0; room1 < rooms.size; room1++) {
+			Array<Integer[]> openings = findOpenings(rooms.get(room1));
+			
+			for (int room1opening = 0; room1opening < openings.size; room1opening++) {
+				
+				for (int room2 = 0; room2 < rooms.size; room2++) {
+					if (room2 == room1) { continue; }
+					Array<Integer[]> otheropenings = findOpenings(rooms.get(room2));
+					
+					for (int room2opening = 0; room2opening < otheropenings.size; room2opening++) {
+						if (((openings.get(room1opening)[2] == up) && (otheropenings.get(room2opening)[2] == down))) {
+							if(!connectedside[room1][up] && !connectedside[room2][down]) {
+								connectedside[room1][up] 	= true;
+								connectedto[room1][up] 		= room2;
+								connectedside[room2][down] 	= true;
+								connectedto[room2][down] 	= room1;
+								hasBeenConnected[room1][openings.get(room1opening)[0]][openings.get(room1opening)[1]] = true;
+								hasBeenConnected[room2][openings.get(room2opening)[0]][openings.get(room2opening)[1]] = true;
+							}
+						}
+						
+						if (((openings.get(room1opening)[2] == down) && (otheropenings.get(room2opening)[2] == up))) {
+							if(!connectedside[room1][down] && !connectedside[room2][up]) {
+								connectedside[room1][down] 	= true;
+								connectedto[room1][down] 	= room2;
+								connectedside[room2][up] 	= true;
+								connectedto[room2][up] 		= room1;
+								hasBeenConnected[room1][openings.get(room1opening)[0]][openings.get(room1opening)[1]] = true;
+								hasBeenConnected[room2][openings.get(room2opening)[0]][openings.get(room2opening)[1]] = true;
+							}
+						}
+						
+						if (((openings.get(room1opening)[2] == left) && (otheropenings.get(room2opening)[2] == right))) {
+							if(!connectedside[room1][left] && !connectedside[room2][right]) {
+								connectedside[room1][left] 	= true;
+								connectedto[room1][left] 	= room2;
+								connectedside[room2][right] = true;
+								connectedto[room2][right] 	= room1;
+								hasBeenConnected[room1][openings.get(room1opening)[0]][openings.get(room1opening)[1]] = true;
+								hasBeenConnected[room2][openings.get(room2opening)[0]][openings.get(room2opening)[1]] = true;
+							}
+						}
+						
+						if (((openings.get(room1opening)[2] == right) && (otheropenings.get(room2opening)[2] == left))) {
+							if(!connectedside[room1][right] && !connectedside[room2][left]) {
+								connectedside[room1][right] = true;
+								connectedto[room1][right] 	= room2;
+								connectedside[room2][left] 	= true;
+								connectedto[room2][left] 	= room1;
+								hasBeenConnected[room1][openings.get(room1opening)[0]][openings.get(room1opening)[1]] = true;
+								hasBeenConnected[room2][openings.get(room2opening)[0]][openings.get(room2opening)[1]] = true;
+							}
+						}
+					}
+					
+				}
+				
+			}
+		}
+		
+		int openingcount = 0;
+		// And again let's get a little messy!
+		// We are looping through to fill the holes that didn't get connected
+		for (int roomindex = 0; roomindex < rooms.size; roomindex++) {
+			Array<Integer[]> openings = findOpenings(rooms.get(roomindex));
+			openingcount += openings.size;
+			for(int opening = 0; opening < openings.size; opening++) {
+				int x = openings.get(opening)[0];
+				int y = openings.get(opening)[1];
+				if (!hasBeenConnected[roomindex][x][y]) {
+					rooms.get(roomindex).get(x).insert(y, new Block(walltype));
+				}
+			}
+		}
+		
+		// Create y lists, one for each  x and y in each direction
+//		Array<Block> x1 = new Array<Block>(); 	// +x
+//		Array<Block> x2 = new Array<Block>(); 	// -x 
+//		Array<Block> y1 = new Array<Block>();	// +y
+//		Array<Block> y2 = new Array<Block>();	// -y
+//		int currentx = 0;	// track our steps
+//		int currenty = 0;	// ditto
+//		
+//		int openingcounter = 0;
+//		for(int roomindex = 0; roomindex < rooms.size; roomindex++) {
+//			if (openingcounter < openingcount) {
+//				Array<Integer[]> openings = findOpenings(rooms.get(roomindex));
+//				
+//			}
+//		}
+		
+		Array<Array<Array<Block>>> finalrooms = new Array<Array<Array<Block>>>();
+		ArrayMap<Integer, Integer> indexconv = new ArrayMap<Integer, Integer>();
+		ArrayMap<Integer, Integer> roomindexconv = new ArrayMap<Integer, Integer>();
+		
+		for(int roomindex = 0; roomindex < rooms.size; roomindex++) {
+			int newindex = 0;
+			if(!isConnected(connectedside[roomindex]) && !finalrooms.contains(rooms.get(roomindex), false)) {
+				finalrooms.insert(newindex, rooms.get(roomindex));
+				roomindexconv.insert(newindex, roomindex, newindex);
+				indexconv.insert(newindex, newindex, roomindex);
+				
+				newindex++;
+			}
+		}
+		
+		int finalconnectedto[][] = new int[finalrooms.size][4]; // connectedto[roomisconnectedto][other4roomsides]
+		for (int i = 0; i < finalconnectedto.length; i++) {
+			finalconnectedto[i][up] 	= -1;
+			finalconnectedto[i][right] 	= -1;
+			finalconnectedto[i][down] 	= -1;
+			finalconnectedto[i][left] 	= -1;
+		}
+		
+		Array<Room> returnme = new Array<Room>();
+		// Helt efterblivet men orkar inte nu
+		for(int roomindex = 0; roomindex < finalrooms.size; roomindex++) {
+			int[] c = new int[4];
+			c[up] = roomindexconv.get(connectedto[indexconv.get(roomindex)][up]);
+			c[right] = roomindexconv.get(connectedto[indexconv.get(roomindex)][right]);
+			c[down] = roomindexconv.get(connectedto[indexconv.get(roomindex)][down]);
+			c[left] = roomindexconv.get(connectedto[indexconv.get(roomindex)][left]);
+			
+			Room room = new Room(finalrooms.get(roomindex), c);
+			returnme.insert(roomindex, room);
+		}
+		
+		return returnme;
+		
+	}
+	
+	private boolean isConnected(boolean[] sideconnected) {
+		return sideconnected[up] && sideconnected[right] && sideconnected[down] && sideconnected[left];
 	}
 	
 	private Array<Integer[]> findOpenings(Array<Array<Block>> room) {
