@@ -88,6 +88,8 @@ public class Tard extends Game implements ApplicationListener {
 		//sprite.setSize(0.9f, 0.9f * sprite.getHeight() / sprite.getWidth());
 		//sprite.setOrigin(sprite.getWidth()/2, sprite.getHeight()/2);
 		//sprite.setPosition(-sprite.getWidth()/2, -sprite.getHeight()/2);
+		camera.zoom -= 2000*camera.zoom;
+		camera.update();
 	}
 
 	@Override
@@ -98,7 +100,6 @@ public class Tard extends Game implements ApplicationListener {
 		stairsDownTexture.dispose();
 		batch.dispose();
 		texture.dispose();
-		
 	}
 	
 	Room todraw = null;
@@ -158,7 +159,7 @@ public class Tard extends Game implements ApplicationListener {
 		
 		// Move the camera around with mouse and holding down left control
 		if (Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT)){
-			camera.translate(-0.1f*Gdx.input.getDeltaX(), 0.1f*Gdx.input.getDeltaY());
+			camera.translate(5*Gdx.input.getDeltaX(), 5*-Gdx.input.getDeltaY());
 			camera.update();
 		}
 		Gdx.app.log("Camera", "Position x: " + camera.position.x + " Position y: " + camera.position.y);
